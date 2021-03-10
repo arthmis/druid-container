@@ -26,8 +26,16 @@ pub struct BorderStyle {
     pub width: KeyOrValue<f64>,
     pub color: KeyOrValue<Color>,
     // line_style: StrokeStyle,
-    // border: (bool, bool, bool, bool),
-    // border: bool,
+}
+
+impl From<(f64, Color)> for BorderStyle {
+    fn from(style: (f64, Color)) -> Self {
+        let (width, color) = style;
+        BorderStyle {
+            width: KeyOrValue::Concrete(width),
+            color: KeyOrValue::Concrete(color),
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -141,8 +149,9 @@ impl<T: Data> Container<T> {
         // });
     }
 
-    pub fn border_left(mut self, style: Option<BorderStyle>) -> Self {
+    pub fn border_left(mut self, style: Option<impl Into<BorderStyle>>) -> Self {
         if let Some(border_style) = style {
+            let border_style = border_style.into();
             if let Some(ref mut border) = self.border {
                 border.left = Some(border_style);
             } else {
@@ -158,8 +167,9 @@ impl<T: Data> Container<T> {
         }
         self
     }
-    pub fn border_right(mut self, style: Option<BorderStyle>) -> Self {
+    pub fn border_right(mut self, style: Option<impl Into<BorderStyle>>) -> Self {
         if let Some(border_style) = style {
+            let border_style = border_style.into();
             if let Some(ref mut border) = self.border {
                 border.right = Some(border_style);
             } else {
@@ -171,7 +181,44 @@ impl<T: Data> Container<T> {
                 });
             }
         } else if let Some(ref mut border) = self.border {
-            border.left = None;
+            border.right = None;
+        }
+        self
+    }
+    pub fn border_top(mut self, style: Option<impl Into<BorderStyle>>) -> Self {
+        if let Some(border_style) = style {
+            let border_style = border_style.into();
+            if let Some(ref mut border) = self.border {
+                border.top = Some(border_style);
+            } else {
+                self.border = Some(Border {
+                    top: Some(border_style),
+                    bottom: None,
+                    left: None,
+                    right: None,
+                });
+            }
+        } else if let Some(ref mut border) = self.border {
+            border.top = None;
+        }
+        self
+    }
+
+    pub fn border_bottom(mut self, style: Option<impl Into<BorderStyle>>) -> Self {
+        if let Some(border_style) = style {
+            let border_style = border_style.into();
+            if let Some(ref mut border) = self.border {
+                border.bottom = Some(border_style);
+            } else {
+                self.border = Some(Border {
+                    top: None,
+                    bottom: Some(border_style),
+                    left: None,
+                    right: None,
+                });
+            }
+        } else if let Some(ref mut border) = self.border {
+            border.bottom = None;
         }
         self
     }
